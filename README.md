@@ -1,6 +1,6 @@
 # "Awesome Books with ES6: plain JavaScript with objects"
 
-> This is a basic SPA (Single Page Application) which is created by JavaScript ES6 syntax using modules.
+> This is a basic SPA (Single Page Application) created by JavaScript ES6 syntax using modules.
 
 ![screenshot](./img/Desktop-Awesome-Books.png)
 
