@@ -1,0 +1,196 @@
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+#header {
+  margin: 0 20px;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.navbar {
+  display: flex;
+  box-sizing: border-box;
+  justify-content: space-between;
+  padding: 3rem;
+  align-items: center;
+  height: 80px;
+  border: 2px solid black;
+  margin: 20px 0;
+  width: 100%;
+}
+
+.navbar-list {
+  display: flex;
+  list-style: none;
+  justify-content: space-around;
+}
+
+.navbar a {
+  text-decoration: none;
+  color: black;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+#nav-header {
+  font-weight: bold;
+}
+
+.navbar .navbar-list li::after {
+  content: '';
+  border-right: 2px solid black;
+  margin: 10px;
+}
+
+.navbar .navbar-list li#contact::after {
+  border-right: none;
+}
+
+#date {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 20px;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+#book-contact-section,
+#book-add-section,
+#book-list-section {
+  display: none;
+}
+
+#book-list-section {
+  position: relative;
+  min-height: 100%;
+  float: left;
+  margin-bottom: 8rem;
+  width: 50%;
+}
+
+#book-contact-section {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.section.active {
+  display: block !important;
+}
+
+#footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: white;
+}
+
+#footer p {
+  margin: 0 20px 20px;
+  color: black;
+  font-size: 20px;
+  padding: 1rem;
+  padding-left: 2rem;
+  border: 2px solid black;
+  font-weight: bold;
+}
+
+#footer span {
+  font-style: italic;
+}
+
+#dateWrapper {
+  padding: 0;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#book-add-section {
+  flex-direction: column;
+  width: 40%;
+}
+
+#formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+button {
+  border: 1px solid;
+  padding: 10px;
+  box-shadow: 5px 5px black;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: rgba(114, 97, 97, 0.596);
+}
+
+#formSection button {
+  width: fit-content;
+  align-self: flex-end;
+  font-size: 18px;
+  padding: 5px;
+}
+
+#formSection input {
+  width: 100%;
+  padding: 5px;
+  border: 2px solid black;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 30px;
+  margin: 5rem;
+}
+
+#book-list-container {
+  border: 2px solid black;
+}
+
+.bookDIV {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+  font-weight: bold;
+}
+
+.bookDIV:nth-child(odd) {
+  background-color: rgb(170, 169, 169);
+}
+
+.listBtn.active {
+  color: blue;
+}
