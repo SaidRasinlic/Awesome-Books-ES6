@@ -24,7 +24,7 @@ To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-- GitHub/VSCode/Linters, ES6 modules, NPM (Software packages system)
+- GitHub/VSCode/Linters/ES6 modules/NPM (Software Packages System)
 
 ### Setup
 
