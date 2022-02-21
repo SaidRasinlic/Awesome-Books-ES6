@@ -1,5 +1,5 @@
-import Book from "./modules/book.js";
-import { DateTime } from './node_modules/luxon/src/luxon.js';
+import Book from './modules/book.js';
+import { DateTime } from './modules/luxon/src/luxon.js';
 
 const bookTitle = document.querySelector('#title');
 const bookAuthor = document.querySelector('#author');
@@ -11,9 +11,8 @@ theForm.addEventListener('submit', () => {
   const newBook = new Book(bookTitle.value, bookAuthor.value);
   newBook.addBook();
   bookAuthor.value = '';
-  bookTitle.value= '';
+  bookTitle.value = '';
 });
-  
 
 Book.displayUI();
 
