@@ -7,13 +7,13 @@ export default class Book {
     this.id = id;
   }
 
-  addBook() {
+  addBook = () => {
     Book.books.push(this);
     localStorage.setItem('bookInfo', JSON.stringify(Book.books));
     Book.displayUI();
   }
 
-  removeBook() {
+  removeBook = () => {
     const removeBookID = parseInt(this.id, 10);
     let listSection = Book.books;
     listSection = listSection.filter((element, index) => index !== removeBookID);
@@ -22,7 +22,7 @@ export default class Book {
     window.location.reload();
   }
 
-  static displayUI() {
+  static displayUI = () => {
     let bookDIV = '';
     Book.books = JSON.parse(localStorage.getItem('bookInfo'));
     if (Book.books === null) {
