@@ -1,20 +1,22 @@
-import { formatOffset, parseZoneInfo, isUndefined, ianaRegex, objToLocalTS } from "../impl/util.js";
-import Zone from "../zone.js";
+import {
+  formatOffset, parseZoneInfo, isUndefined, ianaRegex, objToLocalTS,
+} from '../impl/util.js';
+import Zone from '../zone.js';
 
 const matchingRegex = RegExp(`^${ianaRegex.source}$`);
 
 let dtfCache = {};
 function makeDTF(zone) {
   if (!dtfCache[zone]) {
-    dtfCache[zone] = new Intl.DateTimeFormat("en-US", {
+    dtfCache[zone] = new Intl.DateTimeFormat('en-US', {
       hour12: false,
       timeZone: zone,
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
     });
   }
   return dtfCache[zone];
@@ -30,18 +32,18 @@ const typeToPos = {
 };
 
 function hackyOffset(dtf, date) {
-  const formatted = dtf.format(date).replace(/\u200E/g, ""),
-    parsed = /(\d+)\/(\d+)\/(\d+),? (\d+):(\d+):(\d+)/.exec(formatted),
-    [, fMonth, fDay, fYear, fHour, fMinute, fSecond] = parsed;
+  const formatted = dtf.format(date).replace(/\u200E/g, '');
+  const parsed = /(\d+)\/(\d+)\/(\d+),? (\d+):(\d+):(\d+)/.exec(formatted);
+  const [, fMonth, fDay, fYear, fHour, fMinute, fSecond] = parsed;
   return [fYear, fMonth, fDay, fHour, fMinute, fSecond];
 }
 
 function partsOffset(dtf, date) {
-  const formatted = dtf.formatToParts(date),
-    filled = [];
+  const formatted = dtf.formatToParts(date);
+  const filled = [];
   for (let i = 0; i < formatted.length; i++) {
-    const { type, value } = formatted[i],
-      pos = typeToPos[type];
+    const { type, value } = formatted[i];
+    const pos = typeToPos[type];
 
     if (!isUndefined(pos)) {
       filled[pos] = parseInt(value, 10);
@@ -101,7 +103,7 @@ export default class IANAZone extends Zone {
       return false;
     }
     try {
-      new Intl.DateTimeFormat("en-US", { timeZone: zone }).format();
+      new Intl.DateTimeFormat('en-US', { timeZone: zone }).format();
       return true;
     } catch (e) {
       return false;
@@ -110,47 +112,47 @@ export default class IANAZone extends Zone {
 
   constructor(name) {
     super();
-    /** @private **/
+    /** @private * */
     this.zoneName = name;
-    /** @private **/
+    /** @private * */
     this.valid = IANAZone.isValidZone(name);
   }
 
-  /** @override **/
+  /** @override * */
   get type() {
-    return "iana";
+    return 'iana';
   }
 
-  /** @override **/
+  /** @override * */
   get name() {
     return this.zoneName;
   }
 
-  /** @override **/
+  /** @override * */
   get isUniversal() {
     return false;
   }
 
-  /** @override **/
+  /** @override * */
   offsetName(ts, { format, locale }) {
     return parseZoneInfo(ts, format, locale, this.name);
   }
 
-  /** @override **/
+  /** @override * */
   formatOffset(ts, format) {
     return formatOffset(this.offset(ts), format);
   }
 
-  /** @override **/
+  /** @override * */
   offset(ts) {
     const date = new Date(ts);
 
     if (isNaN(date)) return NaN;
 
-    const dtf = makeDTF(this.name),
-      [year, month, day, hour, minute, second] = dtf.formatToParts
-        ? partsOffset(dtf, date)
-        : hackyOffset(dtf, date);
+    const dtf = makeDTF(this.name);
+    const [year, month, day, hour, minute, second] = dtf.formatToParts
+      ? partsOffset(dtf, date)
+      : hackyOffset(dtf, date);
 
     // because we're using hour12 and https://bugs.chromium.org/p/chromium/issues/detail?id=1025564&can=2&q=%2224%3A00%22%20datetimeformat
     const adjustedHour = hour === 24 ? 0 : hour;
@@ -171,12 +173,12 @@ export default class IANAZone extends Zone {
     return (asUTC - asTS) / (60 * 1000);
   }
 
-  /** @override **/
+  /** @override * */
   equals(otherZone) {
-    return otherZone.type === "iana" && otherZone.name === this.name;
+    return otherZone.type === 'iana' && otherZone.name === this.name;
   }
 
-  /** @override **/
+  /** @override * */
   get isValid() {
     return this.valid;
   }

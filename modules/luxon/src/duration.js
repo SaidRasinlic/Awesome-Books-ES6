@@ -1,8 +1,8 @@
-import { InvalidArgumentError, InvalidDurationError, InvalidUnitError } from "./errors.js";
-import Formatter from "./impl/formatter.js";
-import Invalid from "./impl/invalid.js";
-import Locale from "./impl/locale.js";
-import { parseISODuration, parseISOTimeOnly } from "./impl/regexParser.js";
+import { InvalidArgumentError, InvalidDurationError, InvalidUnitError } from './errors.js';
+import Formatter from './impl/formatter.js';
+import Invalid from './impl/invalid.js';
+import Locale from './impl/locale.js';
+import { parseISODuration, parseISOTimeOnly } from './impl/regexParser.js';
 import {
   asNumber,
   hasOwnProperty,
@@ -11,105 +11,105 @@ import {
   isUndefined,
   normalizeObject,
   roundTo,
-} from "./impl/util.js";
-import Settings from "./settings.js";
+} from './impl/util.js';
+import Settings from './settings.js';
 
-const INVALID = "Invalid Duration";
+const INVALID = 'Invalid Duration';
 
 // unit conversion constants
 export const lowOrderMatrix = {
-    weeks: {
-      days: 7,
-      hours: 7 * 24,
-      minutes: 7 * 24 * 60,
-      seconds: 7 * 24 * 60 * 60,
-      milliseconds: 7 * 24 * 60 * 60 * 1000,
-    },
-    days: {
-      hours: 24,
-      minutes: 24 * 60,
-      seconds: 24 * 60 * 60,
-      milliseconds: 24 * 60 * 60 * 1000,
-    },
-    hours: { minutes: 60, seconds: 60 * 60, milliseconds: 60 * 60 * 1000 },
-    minutes: { seconds: 60, milliseconds: 60 * 1000 },
-    seconds: { milliseconds: 1000 },
+  weeks: {
+    days: 7,
+    hours: 7 * 24,
+    minutes: 7 * 24 * 60,
+    seconds: 7 * 24 * 60 * 60,
+    milliseconds: 7 * 24 * 60 * 60 * 1000,
   },
-  casualMatrix = {
-    years: {
-      quarters: 4,
-      months: 12,
-      weeks: 52,
-      days: 365,
-      hours: 365 * 24,
-      minutes: 365 * 24 * 60,
-      seconds: 365 * 24 * 60 * 60,
-      milliseconds: 365 * 24 * 60 * 60 * 1000,
-    },
-    quarters: {
-      months: 3,
-      weeks: 13,
-      days: 91,
-      hours: 91 * 24,
-      minutes: 91 * 24 * 60,
-      seconds: 91 * 24 * 60 * 60,
-      milliseconds: 91 * 24 * 60 * 60 * 1000,
-    },
-    months: {
-      weeks: 4,
-      days: 30,
-      hours: 30 * 24,
-      minutes: 30 * 24 * 60,
-      seconds: 30 * 24 * 60 * 60,
-      milliseconds: 30 * 24 * 60 * 60 * 1000,
-    },
+  days: {
+    hours: 24,
+    minutes: 24 * 60,
+    seconds: 24 * 60 * 60,
+    milliseconds: 24 * 60 * 60 * 1000,
+  },
+  hours: { minutes: 60, seconds: 60 * 60, milliseconds: 60 * 60 * 1000 },
+  minutes: { seconds: 60, milliseconds: 60 * 1000 },
+  seconds: { milliseconds: 1000 },
+};
+export const casualMatrix = {
+  years: {
+    quarters: 4,
+    months: 12,
+    weeks: 52,
+    days: 365,
+    hours: 365 * 24,
+    minutes: 365 * 24 * 60,
+    seconds: 365 * 24 * 60 * 60,
+    milliseconds: 365 * 24 * 60 * 60 * 1000,
+  },
+  quarters: {
+    months: 3,
+    weeks: 13,
+    days: 91,
+    hours: 91 * 24,
+    minutes: 91 * 24 * 60,
+    seconds: 91 * 24 * 60 * 60,
+    milliseconds: 91 * 24 * 60 * 60 * 1000,
+  },
+  months: {
+    weeks: 4,
+    days: 30,
+    hours: 30 * 24,
+    minutes: 30 * 24 * 60,
+    seconds: 30 * 24 * 60 * 60,
+    milliseconds: 30 * 24 * 60 * 60 * 1000,
+  },
 
-    ...lowOrderMatrix,
+  ...lowOrderMatrix,
+};
+export const daysInYearAccurate = 146097.0 / 400;
+export const daysInMonthAccurate = 146097.0 / 4800;
+export const accurateMatrix = {
+  years: {
+    quarters: 4,
+    months: 12,
+    weeks: daysInYearAccurate / 7,
+    days: daysInYearAccurate,
+    hours: daysInYearAccurate * 24,
+    minutes: daysInYearAccurate * 24 * 60,
+    seconds: daysInYearAccurate * 24 * 60 * 60,
+    milliseconds: daysInYearAccurate * 24 * 60 * 60 * 1000,
   },
-  daysInYearAccurate = 146097.0 / 400,
-  daysInMonthAccurate = 146097.0 / 4800,
-  accurateMatrix = {
-    years: {
-      quarters: 4,
-      months: 12,
-      weeks: daysInYearAccurate / 7,
-      days: daysInYearAccurate,
-      hours: daysInYearAccurate * 24,
-      minutes: daysInYearAccurate * 24 * 60,
-      seconds: daysInYearAccurate * 24 * 60 * 60,
-      milliseconds: daysInYearAccurate * 24 * 60 * 60 * 1000,
-    },
-    quarters: {
-      months: 3,
-      weeks: daysInYearAccurate / 28,
-      days: daysInYearAccurate / 4,
-      hours: (daysInYearAccurate * 24) / 4,
-      minutes: (daysInYearAccurate * 24 * 60) / 4,
-      seconds: (daysInYearAccurate * 24 * 60 * 60) / 4,
-      milliseconds: (daysInYearAccurate * 24 * 60 * 60 * 1000) / 4,
-    },
-    months: {
-      weeks: daysInMonthAccurate / 7,
-      days: daysInMonthAccurate,
-      hours: daysInMonthAccurate * 24,
-      minutes: daysInMonthAccurate * 24 * 60,
-      seconds: daysInMonthAccurate * 24 * 60 * 60,
-      milliseconds: daysInMonthAccurate * 24 * 60 * 60 * 1000,
-    },
-    ...lowOrderMatrix,
-  };
+  quarters: {
+    months: 3,
+    weeks: daysInYearAccurate / 28,
+    days: daysInYearAccurate / 4,
+    hours: (daysInYearAccurate * 24) / 4,
+    minutes: (daysInYearAccurate * 24 * 60) / 4,
+    seconds: (daysInYearAccurate * 24 * 60 * 60) / 4,
+    milliseconds: (daysInYearAccurate * 24 * 60 * 60 * 1000) / 4,
+  },
+  months: {
+    weeks: daysInMonthAccurate / 7,
+    days: daysInMonthAccurate,
+    hours: daysInMonthAccurate * 24,
+    minutes: daysInMonthAccurate * 24 * 60,
+    seconds: daysInMonthAccurate * 24 * 60 * 60,
+    milliseconds: daysInMonthAccurate * 24 * 60 * 60 * 1000,
+  },
+  ...lowOrderMatrix,
+};
 
 // units ordered by size
 const orderedUnits = [
-  "years",
-  "quarters",
-  "months",
-  "weeks",
-  "days",
-  "hours",
-  "minutes",
-  "seconds",
-  "milliseconds",
+  'years',
+  'quarters',
+  'months',
+  'weeks',
+  'days',
+  'hours',
+  'minutes',
+  'seconds',
+  'milliseconds',
 ];
 
 const reverseUnits = orderedUnits.slice(0).reverse();
@@ -131,12 +131,11 @@ function antiTrunc(n) {
 
 // NB: mutates parameters
 function convert(matrix, fromMap, fromUnit, toMap, toUnit) {
-  const conv = matrix[toUnit][fromUnit],
-    raw = fromMap[fromUnit] / conv,
-    sameSign = Math.sign(raw) === Math.sign(toMap[toUnit]),
-    // ok, so this is wild, but see the matrix in the tests
-    added =
-      !sameSign && toMap[toUnit] !== 0 && Math.abs(raw) <= 1 ? antiTrunc(raw) : Math.trunc(raw);
+  const conv = matrix[toUnit][fromUnit];
+  const raw = fromMap[fromUnit] / conv;
+  const sameSign = Math.sign(raw) === Math.sign(toMap[toUnit]);
+  // ok, so this is wild, but see the matrix in the tests
+  const added = !sameSign && toMap[toUnit] !== 0 && Math.abs(raw) <= 1 ? antiTrunc(raw) : Math.trunc(raw);
   toMap[toUnit] += added;
   fromMap[fromUnit] -= added * conv;
 }
@@ -149,9 +148,8 @@ function normalizeValues(matrix, vals) {
         convert(matrix, vals, previous, vals, current);
       }
       return current;
-    } else {
-      return previous;
     }
+    return previous;
   }, null);
 }
 
@@ -173,7 +171,7 @@ export default class Duration {
    * @private
    */
   constructor(config) {
-    const accurate = config.conversionAccuracy === "longterm" || false;
+    const accurate = config.conversionAccuracy === 'longterm' || false;
     /**
      * @access private
      */
@@ -185,7 +183,7 @@ export default class Duration {
     /**
      * @access private
      */
-    this.conversionAccuracy = accurate ? "longterm" : "casual";
+    this.conversionAccuracy = accurate ? 'longterm' : 'casual';
     /**
      * @access private
      */
@@ -233,11 +231,11 @@ export default class Duration {
    * @return {Duration}
    */
   static fromObject(obj, opts = {}) {
-    if (obj == null || typeof obj !== "object") {
+    if (obj == null || typeof obj !== 'object') {
       throw new InvalidArgumentError(
         `Duration.fromObject: argument expected to be an object, got ${
-          obj === null ? "null" : typeof obj
-        }`
+          obj === null ? 'null' : typeof obj
+        }`,
       );
     }
 
@@ -261,15 +259,14 @@ export default class Duration {
   static fromDurationLike(durationLike) {
     if (isNumber(durationLike)) {
       return Duration.fromMillis(durationLike);
-    } else if (Duration.isDuration(durationLike)) {
+    } if (Duration.isDuration(durationLike)) {
       return durationLike;
-    } else if (typeof durationLike === "object") {
+    } if (typeof durationLike === 'object') {
       return Duration.fromObject(durationLike);
-    } else {
-      throw new InvalidArgumentError(
-        `Unknown duration argument ${durationLike} of type ${typeof durationLike}`
-      );
     }
+    throw new InvalidArgumentError(
+      `Unknown duration argument ${durationLike} of type ${typeof durationLike}`,
+    );
   }
 
   /**
@@ -289,9 +286,8 @@ export default class Duration {
     const [parsed] = parseISODuration(text);
     if (parsed) {
       return Duration.fromObject(parsed, opts);
-    } else {
-      return Duration.invalid("unparsable", `the input "${text}" can't be parsed as ISO 8601`);
     }
+    return Duration.invalid('unparsable', `the input "${text}" can't be parsed as ISO 8601`);
   }
 
   /**
@@ -313,9 +309,8 @@ export default class Duration {
     const [parsed] = parseISOTimeOnly(text);
     if (parsed) {
       return Duration.fromObject(parsed, opts);
-    } else {
-      return Duration.invalid("unparsable", `the input "${text}" can't be parsed as ISO 8601`);
     }
+    return Duration.invalid('unparsable', `the input "${text}" can't be parsed as ISO 8601`);
   }
 
   /**
@@ -326,7 +321,7 @@ export default class Duration {
    */
   static invalid(reason, explanation = null) {
     if (!reason) {
-      throw new InvalidArgumentError("need to specify a reason the Duration is invalid");
+      throw new InvalidArgumentError('need to specify a reason the Duration is invalid');
     }
 
     const invalid = reason instanceof Invalid ? reason : new Invalid(reason, explanation);
@@ -343,24 +338,24 @@ export default class Duration {
    */
   static normalizeUnit(unit) {
     const normalized = {
-      year: "years",
-      years: "years",
-      quarter: "quarters",
-      quarters: "quarters",
-      month: "months",
-      months: "months",
-      week: "weeks",
-      weeks: "weeks",
-      day: "days",
-      days: "days",
-      hour: "hours",
-      hours: "hours",
-      minute: "minutes",
-      minutes: "minutes",
-      second: "seconds",
-      seconds: "seconds",
-      millisecond: "milliseconds",
-      milliseconds: "milliseconds",
+      year: 'years',
+      years: 'years',
+      quarter: 'quarters',
+      quarters: 'quarters',
+      month: 'months',
+      months: 'months',
+      week: 'weeks',
+      weeks: 'weeks',
+      day: 'days',
+      days: 'days',
+      hour: 'hours',
+      hours: 'hours',
+      minute: 'minutes',
+      minutes: 'minutes',
+      second: 'seconds',
+      seconds: 'seconds',
+      millisecond: 'milliseconds',
+      milliseconds: 'milliseconds',
     }[unit ? unit.toLowerCase() : unit];
 
     if (!normalized) throw new InvalidUnitError(unit);
@@ -445,13 +440,15 @@ export default class Duration {
           return null;
         }
         return this.loc
-          .numberFormatter({ style: "unit", unitDisplay: "long", ...opts, unit: unit.slice(0, -1) })
+          .numberFormatter({
+            style: 'unit', unitDisplay: 'long', ...opts, unit: unit.slice(0, -1),
+          })
           .format(val);
       })
       .filter((n) => n);
 
     return this.loc
-      .listFormatter({ type: "conjunction", style: opts.listStyle || "narrow", ...opts })
+      .listFormatter({ type: 'conjunction', style: opts.listStyle || 'narrow', ...opts })
       .format(l);
   }
 
@@ -479,20 +476,19 @@ export default class Duration {
     // we could use the formatter, but this is an easier way to get the minimum string
     if (!this.isValid) return null;
 
-    let s = "P";
-    if (this.years !== 0) s += this.years + "Y";
-    if (this.months !== 0 || this.quarters !== 0) s += this.months + this.quarters * 3 + "M";
-    if (this.weeks !== 0) s += this.weeks + "W";
-    if (this.days !== 0) s += this.days + "D";
-    if (this.hours !== 0 || this.minutes !== 0 || this.seconds !== 0 || this.milliseconds !== 0)
-      s += "T";
-    if (this.hours !== 0) s += this.hours + "H";
-    if (this.minutes !== 0) s += this.minutes + "M";
+    let s = 'P';
+    if (this.years !== 0) s += `${this.years}Y`;
+    if (this.months !== 0 || this.quarters !== 0) s += `${this.months + this.quarters * 3}M`;
+    if (this.weeks !== 0) s += `${this.weeks}W`;
+    if (this.days !== 0) s += `${this.days}D`;
+    if (this.hours !== 0 || this.minutes !== 0 || this.seconds !== 0 || this.milliseconds !== 0) { s += 'T'; }
+    if (this.hours !== 0) s += `${this.hours}H`;
+    if (this.minutes !== 0) s += `${this.minutes}M`;
     if (this.seconds !== 0 || this.milliseconds !== 0)
-      // this will handle "floating point madness" by removing extra decimal places
-      // https://stackoverflow.com/questions/588004/is-floating-point-math-broken
-      s += roundTo(this.seconds + this.milliseconds / 1000, 3) + "S";
-    if (s === "P") s += "T0S";
+    // this will handle "floating point madness" by removing extra decimal places
+    // https://stackoverflow.com/questions/588004/is-floating-point-math-broken
+    { s += `${roundTo(this.seconds + this.milliseconds / 1000, 3)}S`; }
+    if (s === 'P') s += 'T0S';
     return s;
   }
 
@@ -522,25 +518,25 @@ export default class Duration {
       suppressMilliseconds: false,
       suppressSeconds: false,
       includePrefix: false,
-      format: "extended",
+      format: 'extended',
       ...opts,
     };
 
-    const value = this.shiftTo("hours", "minutes", "seconds", "milliseconds");
+    const value = this.shiftTo('hours', 'minutes', 'seconds', 'milliseconds');
 
-    let fmt = opts.format === "basic" ? "hhmm" : "hh:mm";
+    let fmt = opts.format === 'basic' ? 'hhmm' : 'hh:mm';
 
     if (!opts.suppressSeconds || value.seconds !== 0 || value.milliseconds !== 0) {
-      fmt += opts.format === "basic" ? "ss" : ":ss";
+      fmt += opts.format === 'basic' ? 'ss' : ':ss';
       if (!opts.suppressMilliseconds || value.milliseconds !== 0) {
-        fmt += ".SSS";
+        fmt += '.SSS';
       }
     }
 
     let str = value.toFormat(fmt);
 
     if (opts.includePrefix) {
-      str = "T" + str;
+      str = `T${str}`;
     }
 
     return str;
@@ -567,7 +563,7 @@ export default class Duration {
    * @return {number}
    */
   toMillis() {
-    return this.as("milliseconds");
+    return this.as('milliseconds');
   }
 
   /**
@@ -586,8 +582,8 @@ export default class Duration {
   plus(duration) {
     if (!this.isValid) return this;
 
-    const dur = Duration.fromDurationLike(duration),
-      result = {};
+    const dur = Duration.fromDurationLike(duration);
+    const result = {};
 
     for (const k of orderedUnits) {
       if (hasOwnProperty(dur.values, k) || hasOwnProperty(this.values, k)) {
@@ -658,8 +654,8 @@ export default class Duration {
    * @return {Duration}
    */
   reconfigure({ locale, numberingSystem, conversionAccuracy } = {}) {
-    const loc = this.loc.clone({ locale, numberingSystem }),
-      opts = { loc };
+    const loc = this.loc.clone({ locale, numberingSystem });
+    const opts = { loc };
 
     if (conversionAccuracy) {
       opts.conversionAccuracy = conversionAccuracy;
@@ -707,9 +703,9 @@ export default class Duration {
 
     units = units.map((u) => Duration.normalizeUnit(u));
 
-    const built = {},
-      accumulated = {},
-      vals = this.toObject();
+    const built = {};
+    const accumulated = {};
+    const vals = this.toObject();
     let lastUnit;
 
     for (const k of orderedUnits) {
@@ -749,8 +745,8 @@ export default class Duration {
     // lastUnit must be defined since units is not empty
     for (const key in accumulated) {
       if (accumulated[key] !== 0) {
-        built[lastUnit] +=
-          key === lastUnit ? accumulated[key] : accumulated[key] / this.matrix[lastUnit][key];
+        built[lastUnit]
+          += key === lastUnit ? accumulated[key] : accumulated[key] / this.matrix[lastUnit][key];
       }
     }
 

@@ -1,25 +1,25 @@
 const numberingSystems = {
-  arab: "[\u0660-\u0669]",
-  arabext: "[\u06F0-\u06F9]",
-  bali: "[\u1B50-\u1B59]",
-  beng: "[\u09E6-\u09EF]",
-  deva: "[\u0966-\u096F]",
-  fullwide: "[\uFF10-\uFF19]",
-  gujr: "[\u0AE6-\u0AEF]",
-  hanidec: "[〇|一|二|三|四|五|六|七|八|九]",
-  khmr: "[\u17E0-\u17E9]",
-  knda: "[\u0CE6-\u0CEF]",
-  laoo: "[\u0ED0-\u0ED9]",
-  limb: "[\u1946-\u194F]",
-  mlym: "[\u0D66-\u0D6F]",
-  mong: "[\u1810-\u1819]",
-  mymr: "[\u1040-\u1049]",
-  orya: "[\u0B66-\u0B6F]",
-  tamldec: "[\u0BE6-\u0BEF]",
-  telu: "[\u0C66-\u0C6F]",
-  thai: "[\u0E50-\u0E59]",
-  tibt: "[\u0F20-\u0F29]",
-  latn: "\\d",
+  arab: '[\u0660-\u0669]',
+  arabext: '[\u06F0-\u06F9]',
+  bali: '[\u1B50-\u1B59]',
+  beng: '[\u09E6-\u09EF]',
+  deva: '[\u0966-\u096F]',
+  fullwide: '[\uFF10-\uFF19]',
+  gujr: '[\u0AE6-\u0AEF]',
+  hanidec: '[〇|一|二|三|四|五|六|七|八|九]',
+  khmr: '[\u17E0-\u17E9]',
+  knda: '[\u0CE6-\u0CEF]',
+  laoo: '[\u0ED0-\u0ED9]',
+  limb: '[\u1946-\u194F]',
+  mlym: '[\u0D66-\u0D6F]',
+  mong: '[\u1810-\u1819]',
+  mymr: '[\u1040-\u1049]',
+  orya: '[\u0B66-\u0B6F]',
+  tamldec: '[\u0BE6-\u0BEF]',
+  telu: '[\u0C66-\u0C6F]',
+  thai: '[\u0E50-\u0E59]',
+  tibt: '[\u0F20-\u0F29]',
+  latn: '\\d',
 };
 
 const numberingSystemsUTF16 = {
@@ -44,12 +44,12 @@ const numberingSystemsUTF16 = {
   tibt: [3872, 3881],
 };
 
-const hanidecChars = numberingSystems.hanidec.replace(/[\[|\]]/g, "").split("");
+const hanidecChars = numberingSystems.hanidec.replace(/[\[|\]]/g, '').split('');
 
 export function parseDigits(str) {
   let value = parseInt(str, 10);
   if (isNaN(value)) {
-    value = "";
+    value = '';
     for (let i = 0; i < str.length; i++) {
       const code = str.charCodeAt(i);
 
@@ -65,11 +65,10 @@ export function parseDigits(str) {
       }
     }
     return parseInt(value, 10);
-  } else {
-    return value;
   }
+  return value;
 }
 
-export function digitRegex({ numberingSystem }, append = "") {
-  return new RegExp(`${numberingSystems[numberingSystem || "latn"]}${append}`);
+export function digitRegex({ numberingSystem }, append = '') {
+  return new RegExp(`${numberingSystems[numberingSystem || 'latn']}${append}`);
 }

@@ -1,15 +1,15 @@
-import SystemZone from "./zones/systemZone.js";
-import IANAZone from "./zones/IANAZone.js";
-import Locale from "./impl/locale.js";
+import SystemZone from './zones/systemZone.js';
+import IANAZone from './zones/IANAZone.js';
+import Locale from './impl/locale.js';
 
-import { normalizeZone } from "./impl/zoneUtil.js";
+import { normalizeZone } from './impl/zoneUtil.js';
 
-let now = () => Date.now(),
-  defaultZone = "system",
-  defaultLocale = null,
-  defaultNumberingSystem = null,
-  defaultOutputCalendar = null,
-  throwOnInvalid;
+let now = () => Date.now();
+let defaultZone = 'system';
+let defaultLocale = null;
+let defaultNumberingSystem = null;
+let defaultOutputCalendar = null;
+let throwOnInvalid;
 
 /**
  * Settings contains static getters and setters that control Luxon's overall behavior. Luxon is a simple library with few options, but the ones it does have live here.

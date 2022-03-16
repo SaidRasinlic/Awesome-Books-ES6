@@ -1,4 +1,4 @@
-import { ZoneIsAbstractError } from "./errors.js";
+import { ZoneIsAbstractError } from './errors.js';
 
 /**
  * @interface

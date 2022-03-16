@@ -7,8 +7,7 @@ export default class Invalid {
   toMessage() {
     if (this.explanation) {
       return `${this.reason}: ${this.explanation}`;
-    } else {
-      return this.reason;
     }
+    return this.reason;
   }
 }

@@ -1,5 +1,5 @@
-import { formatOffset, signedOffset } from "../impl/util.js";
-import Zone from "../zone.js";
+import { formatOffset, signedOffset } from '../impl/util.js';
+import Zone from '../zone.js';
 
 let singleton = null;
 
@@ -48,46 +48,46 @@ export default class FixedOffsetZone extends Zone {
 
   constructor(offset) {
     super();
-    /** @private **/
+    /** @private * */
     this.fixed = offset;
   }
 
-  /** @override **/
+  /** @override * */
   get type() {
-    return "fixed";
+    return 'fixed';
   }
 
-  /** @override **/
+  /** @override * */
   get name() {
-    return this.fixed === 0 ? "UTC" : `UTC${formatOffset(this.fixed, "narrow")}`;
+    return this.fixed === 0 ? 'UTC' : `UTC${formatOffset(this.fixed, 'narrow')}`;
   }
 
-  /** @override **/
+  /** @override * */
   offsetName() {
     return this.name;
   }
 
-  /** @override **/
+  /** @override * */
   formatOffset(ts, format) {
     return formatOffset(this.fixed, format);
   }
 
-  /** @override **/
+  /** @override * */
   get isUniversal() {
     return true;
   }
 
-  /** @override **/
+  /** @override * */
   offset() {
     return this.fixed;
   }
 
-  /** @override **/
+  /** @override * */
   equals(otherZone) {
-    return otherZone.type === "fixed" && otherZone.fixed === this.fixed;
+    return otherZone.type === 'fixed' && otherZone.fixed === this.fixed;
   }
 
-  /** @override **/
+  /** @override * */
   get isValid() {
     return true;
   }
